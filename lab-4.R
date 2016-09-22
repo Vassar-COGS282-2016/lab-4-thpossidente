@@ -178,12 +178,13 @@ sum(log(gcm.practice.data$likelihood.of.response))
 
 same.diff.data <- c(32, 29, 31, 34, 26, 29, 31, 34, 29, 31, 30, 29, 31, 34, 33, 27, 32, 29, 29, 27)
 
+
 # we can model this experiment's data as 40 coin flips for each subject. use grid search to plot the likelihood
 # function for values of theta (probability of a correct response) between 0.5 and 0.9, in steps of 0.01.
 # start by writing a function that calculates the likelihood (not log) for the entire set of data given a value of theta.
 
 likelihood <- function(prob.of.success){
-  dbinom(same.diff.data, 40, prob.of.success)
+  prod(dbinom(same.diff.data, 40, prob.of.success))
 }
 
 # then use sapply to run the function for each possible value of theta in the set. use seq() to generate the
@@ -191,14 +192,19 @@ likelihood <- function(prob.of.success){
 
 possible.parameters <- seq(from = 0.5, to = 0.9, by = 0.01)
 
-likelihood.parameter <- sapply(possible.parameters, likelihood)
+data<- data.frame(possible.parameters)
+
+data$likelihood.parameter <- sapply(possible.parameters, likelihood)
 
 plot(x = possible.parameters, y = likelihood.parameter)
   
 
 # the "true" underlying value i used to generate the data was 0.75. does that match up with the grid search?
 
-## mle with optim()
+which.max(data$likelihood.parameter)
+#### grid search returns 0.76 as most likely parameter
+
+
 
 # in this section, you'll do model recovery for a descriptive model of the linear relationship 
 # between two continuous variables.
