@@ -13,9 +13,9 @@
 # with the parameters spelled out. you can try changing these to explore
 # how the function works.
 
-number.of.samples <- 2
-number.of.trials.per.sample <- 10
-probability.of.success <- 0.7
+number.of.samples <- 10
+number.of.trials.per.sample <- 100
+probability.of.success <- 0.5
 
 rbinom(number.of.samples, number.of.trials.per.sample, probability.of.success)
 
@@ -26,7 +26,9 @@ rbinom(number.of.samples, number.of.trials.per.sample, probability.of.success)
 # of course, ESP doesn't exist, so the probability of a successful guess is 0.50.
 # store the result in a vector called esp.data
 
-esp.data <- NA # answer needed here.
+
+esp.data <- rbinom(100, 20, 0.5)
+
 
 # a quick way to visualize a distribution is with the hist() function:
 hist(esp.data)
@@ -45,7 +47,7 @@ dbinom(value.to.check, number.of.trials, probability.of.success)
 # questions correctly, if they have a 0.9 probability of giving a correct answer
 # for each individual question.
 
-# answer needed here.
+dbinom(87,100,0.9)
 
 # with dbinom, you can use a vector as the first argument, to check the probability
 # of multiple values at the same time:
@@ -58,7 +60,10 @@ dbinom(values, 8, 0.5)
 # hint: create one vector for the different possible outcomes
 #       then use dbinom to calculate the probability of all of the elements in the vector
 
-# answer needed here.
+values2 <- c(1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16)
+plot <- dbinom(values2,16,0.5)
+
+plot(x = values2, y = plot)
 
 # quick detour #
 
@@ -80,14 +85,16 @@ hist(hist.sample, xlim=c(0,100)) # compare this plot to the line above.
 # generate 100 samples from a normal distribution with mean 0 and standard deviation 10.
 # then use hist() to create a histogram of these samples.
 
-# answer needed here.
+normal.dist <- rnorm(100,0,10)
+hist(normal.dist)
 
 # now plot the probability density function of this distribution.
 # use the same strategy as you did above with the binomial to find the density of the normal
 # distribution with mean 0 and sd 10 for values between -50 and 50. the distribution is continuous
 # so, choose a reasonably small step size between values (remember the seq() function).
-
-# answer needed here.
+numbers <- seq(from = -50, to = 50, by = 0.5)
+density.norm <- dnorm(numbers, 0, 10)
+plot(x = numbers, y = density.norm)
 
 #### practice calculating likelihoods ####
 
@@ -100,11 +107,14 @@ esp.practice.data <- data.frame(subject=1:10, n.correct=c(11,10,6,10,6,12,10,8,9
 # of the probability of success parameter: 0.4, 0.5, and 0.6.
 # hint: prod() will multiple all elements of a vector together.
 
-# answer needed here.
+prod(dbinom(esp.practice.data$n.correct, 20, 0.4))
+prod(dbinom(esp.practice.data$n.correct, 20, 0.5))
+prod(dbinom(esp.practice.data$n.correct, 20, 0.6))
+
 
 # which parameter value of those options is most likely?
 
-# answer here.
+# success parameter = 0.5 is most likely (4.433186e-10)
 
 # here is a sample of response times for a single subject from a rapid decision making experiment.
 rt.sample <- c(391.5845, 411.9970, 358.6373, 505.3099, 616.2892, 481.0751, 422.3132, 511.7213, 205.2692, 522.3433, 370.1850,
@@ -116,26 +126,26 @@ rt.sample <- c(391.5845, 411.9970, 358.6373, 505.3099, 616.2892, 481.0751, 422.3
 # hint: sum() adds the numbers in a vector. log() is the natural log function, or log=T for dnorm().
 
 # 1) mean 350, sd 50
-# answer needed here.
+sum(dnorm(rt.sample, 350, 50, log=TRUE))
 
 # 2) mean 400, sd 50
-# answer needed here.
+sum(dnorm(rt.sample, 400, 50, log=TRUE))
 
 # 3) mean 450, sd 50
-# answer needed here.
+sum(dnorm(rt.sample, 450, 50, log=TRUE))
 
 # 4) mean 350, sd 100
-# answer needed here.
+sum(dnorm(rt.sample, 350, 100, log=TRUE))
 
 # 5) mean 400, sd 100
-# answer needed here.
+sum(dnorm(rt.sample, 400, 100, log=TRUE))
 
 # 6) mean 450, sd 100
-# answer needed here.
+sum(dnorm(rt.sample, 450, 100, log=TRUE))
 
 # which parameter set has the highest likelihood?
 
-# answer needed here.
+# mean = 400, sd = 100 has the highest likelihood (-182.5699)
 
 # here is a set of data for a subject in a categorization experiment, modeled with GCM.
 # calculate the log likelihood of the parameters in the model (which i am not showing you).
@@ -148,7 +158,15 @@ gcm.practice.data <- data.frame(correct.response = c(T, T, T, T, F, T, T, F, T, 
                                 gcm.probability.correct = c(0.84, 0.80, 0.84, 0.80, 0.79, 0.86, 0.89, 0.87, 0.69, 0.85, 0.75,
                                                             0.74, 0.82, 0.85, 0.87, 0.69, 0.83, 0.87, 0.80, 0.76))
 
-# answer needed here.
+gcm.practice.data$likelihood.of.response <- mapply(function(correct.response, gcm.probability.correct){
+  if (correct.response == T){
+    return(gcm.probability.correct)}
+  if (correct.response == F){
+    return(1 - gcm.probability.correct)}
+  
+}, gcm.practice.data$correct.response, gcm.practice.data$gcm.probability.correct)
+
+sum(log(gcm.practice.data$likelihood.of.response))
 
 #### maximum likelihood estimation ####
 
@@ -157,18 +175,26 @@ gcm.practice.data <- data.frame(correct.response = c(T, T, T, T, F, T, T, F, T, 
 
 # here are the number of correct responses each subject gave in an experiment in which they had to
 # decide if two images were the same or different. there were 40 trials for each subject
+
 same.diff.data <- c(32, 29, 31, 34, 26, 29, 31, 34, 29, 31, 30, 29, 31, 34, 33, 27, 32, 29, 29, 27)
 
 # we can model this experiment's data as 40 coin flips for each subject. use grid search to plot the likelihood
 # function for values of theta (probability of a correct response) between 0.5 and 0.9, in steps of 0.01.
 # start by writing a function that calculates the likelihood (not log) for the entire set of data given a value of theta.
 
-# answer needed here.
+likelihood <- function(prob.of.success){
+  dbinom(same.diff.data, 40, prob.of.success)
+}
 
 # then use sapply to run the function for each possible value of theta in the set. use seq() to generate the
 # set of possible values. plot the set of values on the x axis and the corresponding likelihoods on the y axis.
 
-# answer needed here.
+possible.parameters <- seq(from = 0.5, to = 0.9, by = 0.01)
+
+likelihood.parameter <- sapply(possible.parameters, likelihood)
+
+plot(x = possible.parameters, y = likelihood.parameter)
+  
 
 # the "true" underlying value i used to generate the data was 0.75. does that match up with the grid search?
 
