@@ -215,17 +215,26 @@ which.max(data$likelihood.parameter)
 # create a vector of x values from 0 to 100, and the corresponding vector of y values,
 # then plot these with x values on the x axis, and y values on the y axis.
 
-# answer needed here.
+x <- seq(from = 0, to = 100, by = 1)
+y <- sapply(x, function(x){
+  return(4 + 0.8*x)
+})
 
+plot(x = x, y = y)
+  
 # now let's assume that the relationship between x and y isn't perfect. there's a bit of random
 # noise. add a random sample from a normal distribution with mean 0 and sd 10 to each y value.
 # hint: there are 101 y values, so you need 101 samples.
 
-# answer needed here.
+x <- seq(from = 0, to = 100, by = 1)
+y <- sapply(x, function(x){
+  return(4 + 0.8*x + rnorm(1, 0, 10))
+})
+
 
 # plot the data again, with the new noisy y values.
 
-# answer needed here.
+plot(x = x, y = y)
 
 # there are three parameter values that control this plot,
 # the intercept of the line: 4
