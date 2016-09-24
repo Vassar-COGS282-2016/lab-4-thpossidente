@@ -265,26 +265,59 @@ dnorm(y.observed, y.predicted, 10)
 # write the code to see how likely it is that y will be 33 when x is 29? (assuming sd = 10)
 # the correct answer is 0.03371799...
 
-# answer needed here.
+x.observed <- 29
+y.predicted <- 4 + 0.8*x.observed
+y.observed <- 33
+dnorm(y.observed, y.predicted, 10)
 
 # now generalize your solution to compute the likelihood of each value of y that you generated above.
 # in other words, write the code that takes a vector of x and y values, and returns the probability
 # of each pair given that the relationship between x and y is y <- 4 + 0.8*x and the normal distribution has an sd of 10.
 
-# answer needed here.
+xy.data <- data.frame(x, y)
+
+xy.data$probability.of.each.y <- mapply(function(x, y){
+  y.predicted <- 4 + 0.8*x
+  return(dnorm(y, y.predicted, 10))
+}, xy.data$x, xy.data$y)
+
 
 # now generalize your solution one step further. write a function that takes in a vector of parameters,
 # where parameters[1] is the intercept, parameters[2] is the slope, and parameters[3] is the sd of the normal,
 # and returns the total **negative log likelihood**. remember, we want the negative log likelihood because
 # optim() will find the set of parameters that minimizes a function.
 
-# answer needed here.
+probability.varying.parameters <- function(parameters){
+  
+  intercept <- parameters[1]
+  slope <- parameters[2]
+  sd <- parameters[3]
+  if(sd < 0){return(NA)}
+  
+  
+  likelihood <- mapply(function(x, y){
+  y.predicted <- intercept + slope*x
+  return(dnorm(x, y.predicted, sd))
+  
+  }, xy.data$x, xy.data$y)
+  
+  return(sum(-log(likelihood)))
+
+}
 
 # use optim() and Nelder-Mead to search for the best fitting parameters. remember to ensure that sd > 0
 # and return NA if it is not.
 
-# answer needed here.
+fit <- optim(c(1, 1, 1), probability.varying.parameters, method="Nelder-Mead")
+
+fit$par
 
 # finally, plot the best fitting line on your points by using the abline() function, and the parameters that optim() found.
 
-# answer needed here.
+
+install.packages("ggplot2")
+library(ggplot2)
+
+ggplot(xy.data, aes(x=x, y=y))+
+  geom_point()+
+  geom_abline(intercept = fit$par[1], slope = fit$par[2])
