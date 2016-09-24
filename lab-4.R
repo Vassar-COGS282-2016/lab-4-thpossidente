@@ -310,7 +310,7 @@ probability.varying.parameters <- function(parameters){
 
 fit <- optim(c(1, 1, 1), probability.varying.parameters, method="Nelder-Mead")
 
-fit$par
+fit$par  ## -5.041813e-12  1.000000e+00  9.250108e-12
 
 # finally, plot the best fitting line on your points by using the abline() function, and the parameters that optim() found.
 
